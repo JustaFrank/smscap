@@ -93,7 +93,10 @@ app.post('/sms/incoming', async (req, res) => {
   const callerNumber = req.body.From
   const proxyNumber = req.body.To
   const content = req.body.Body
-  const reply = `New message from ${callerNumber}: ${content}`
+
+  const visibleNumber = getUserByNumber(callerNumber) || callerNumber
+
+  const reply = `${visibleNumber}: ${content}`
   signale.note(reply)
 
   const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
@@ -107,7 +110,7 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
   } else if (ongoingSMS === false) {
     signale.note('Incorrect')
-    sendSMS(proxyNumber, callerNumber, 'Incorrect! 🙅‍♀️ Resend your message.')
+    sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. 🙅‍♀️')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
     if (!(await isWhitelisted(proxyNumber, callerNumber))) {
@@ -117,26 +120,37 @@ app.post('/sms/incoming', async (req, res) => {
       sendSMS(
         proxyNumber,
         callerNumber,
-        `This message was detected as spam. 🤨 Please answer the following question:\n ${
+        `This message was detected as spam. 🤨 Please answer the following question: ${
           cap.q
         }`
       )
       addOngoingSMS(proxyNumber, callerNumber, cap, reply)
     } else {
-      signale.note('Not spam.')
-      const user = await getUser(proxyNumber)
+      signale.note('Message detected as not spam.')
+      const user = await getUserByProxyNumber(proxyNumber)
       sendSMS(proxyNumber, user.number, reply)
     }
   }
 })
 
-async function getUser (proxyNumber) {
+async function getUserByProxyNumber (proxyNumber) {
   const options = {
     method: 'GET',
     url: `http://localhost:${port}/user/${proxyNumber}`,
     json: true
   }
   return rp(options)
+}
+
+async function getUserByNumber (number) {
+  const options = {
+    method: 'GET',
+    url: `http://localhost:${port}/user`,
+    json: true
+  }
+  return rp(options).then(users => {
+    return users.filter(user => user.number === number)[0]
+  })
 }
 
 async function isWhitelisted (proxyNumber, number) {
