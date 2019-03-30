@@ -103,7 +103,10 @@ app.post('/sms/incoming', async (req, res) => {
 
   const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
 
-  if (ongoingSMS) {
+  if (isBlacklisted(proxyNumber, callerNumber)) {
+    signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
+    sendSMS(proxyNumber, callerNumber, `You've been blacklisted! ❌`)
+  } else if (ongoingSMS) {
     signale.note('Is an ongoing SMS')
     removeOngoingSMS(proxyNumber, callerNumber)
     addToWhitelist(proxyNumber, callerNumber)
@@ -112,7 +115,7 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
   } else if (ongoingSMS === false) {
     signale.note('Incorrect')
-    sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. 🙅‍♀️')
+    sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
     if (!(await isWhitelisted(proxyNumber, callerNumber))) {

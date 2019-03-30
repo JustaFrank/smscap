@@ -18,7 +18,6 @@ const userSchema = new Schema({
   ongoingSMS: [
     {
       callerNumber: String,
-      // code: String,
       question: String,
       answers: [String],
       message: String
