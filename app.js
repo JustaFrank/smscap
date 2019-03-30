@@ -98,7 +98,7 @@ app.post('/sms/incoming', async (req, res) => {
   const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
   const visibleNumber = sendingUser ? sendingUser.proxyNumber : callerNumber
 
-  const reply = `${visibleNumber}: ${content}`
+  const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
   signale.note(reply)
 
   const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
