@@ -5,8 +5,6 @@ require('dotenv').config()
 
 const accountSid = process.env.ACCOUNT_SID
 const authToken = process.env.AUTH_TOKEN
-console.log(accountSid)
-console.log(authToken)
 const client = require('twilio')(accountSid, authToken)
 const signale = require('signale')
 const VoiceResponse = require('twilio').twiml.VoiceResponse
@@ -19,7 +17,6 @@ const twilio = require('twilio')
 const urlencoded = require('body-parser').urlencoded
 const app = express()
 const session = require('express-session')
-const port = 6969
 const captcha = require('./cap.js')
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
@@ -120,7 +117,9 @@ app.post('/sms/incoming', async (req, res) => {
       sendSMS(
         proxyNumber,
         callerNumber,
-        `This message was detected as spam. 🤨 Please answer the following question:\n ${cap.q}`
+        `This message was detected as spam. 🤨 Please answer the following question:\n ${
+          cap.q
+        }`
       )
       addOngoingSMS(proxyNumber, callerNumber, cap, reply)
     } else {
@@ -179,7 +178,9 @@ async function addOngoingSMS (proxyNumber, callerNumber, cap, message) {
   const options = {
     method: 'post',
     url: `http://localhost:${port}/user/${proxyNumber}/ongoingSMS`,
-    body: { ongoingSMS: { callerNumber, question: cap.q, answers: cap.a, message } },
+    body: {
+      ongoingSMS: { callerNumber, question: cap.q, answers: cap.a, message }
+    },
     json: true
   }
   rp(options)
