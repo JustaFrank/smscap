@@ -16,7 +16,6 @@ const urlencoded = require('body-parser').urlencoded
 const app = express()
 const session = require('express-session')
 const port = 6969
-
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
 
@@ -68,7 +67,7 @@ app.post('/call/authcode/:correctCode', (req, res) => {
   signale.info(`Recieved auth code: ${req.body.Digits}`)
 
   if (req.body.Digits) {
-    if (req.body.Digits === req.params.correctCode) {
+    if (req.body.Digits.toString() === req.params.correctCode) {
       signale.success('Auth code corrrect - redirecting to caller')
       twiml.say('Code is correct. Redirecting you to caller...')
       twiml.dial('5106405189')
