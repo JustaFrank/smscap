@@ -226,4 +226,4 @@ function getCode () {
   return Math.round(Math.random() * 8999 + 1000)
 }
 // Create an HTTP server and listen for requests on port 3000
-app.listen(6969, () => signale.start(`App running at port ${port}`))
+app.listen(port, () => signale.start(`App running at port ${port}`))
