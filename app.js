@@ -31,6 +31,8 @@ app.use(bodyParser.urlencoded({ extended: true }))
 
 const user = require('./routes/user')
 
+app.get('/', (req, res) => res.send('Teleguard: built at LA Hacks 2019'))
+
 app.use('/user/', user)
 
 // Create a route that will handle Twilio webhook requests, sent as an
