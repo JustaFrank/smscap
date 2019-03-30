@@ -1,4 +1,7 @@
 /* eslint-disable no-unused-vars */
+const port = process.env.PORT || 6969
+console.log(`Port: ${port}`)
+
 require('dotenv').config()
 
 const accountSid = process.env.ACCOUNT_SID
@@ -15,7 +18,6 @@ const twilio = require('twilio')
 const urlencoded = require('body-parser').urlencoded
 const app = express()
 const session = require('express-session')
-const port = process.env.PORT || 6969
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
 
