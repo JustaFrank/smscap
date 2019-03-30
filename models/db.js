@@ -5,6 +5,8 @@ const db = mongoose.connection
 const signale = require('signale')
 
 const connect = () => {
+  console.log(`uri: ${MONGO_URL}`)
+
   mongoose.connect(MONGO_URL, { useNewUrlParser: true })
 
   db.on('connected', function () {

@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 const port = process.env.PORT || 6969
-console.log(`Port: ${port}`)
 
 require('dotenv').config()
 
