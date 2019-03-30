@@ -166,6 +166,17 @@ async function isWhitelisted (proxyNumber, number) {
   })
 }
 
+async function isBlacklisted (proxyNumber, number) {
+  const options = {
+    method: 'GET',
+    url: `http://localhost:${port}/user/${proxyNumber}`,
+    json: true
+  }
+  return rp(options).then(user => {
+    return user && user.blacklist.includes(number)
+  })
+}
+
 async function isOngoingSMS (proxyNumber, callerNumber, content) {
   const options = {
     method: 'get',

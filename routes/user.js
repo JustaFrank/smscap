@@ -10,6 +10,7 @@ router
       number: req.body.number,
       proxyNumber: req.body.proxyNumber,
       whitelist: [req.body.number],
+      blacklist: [],
       callHistory: [],
       ongoingSMS: []
     })
@@ -88,6 +89,43 @@ router
       User.findOneAndUpdate(
         { proxyNumber: req.params.proxyNumber },
         { whitelist }
+      )
+        .exec()
+        .then(result => {
+          res.send(result)
+        })
+        .catch(error => {
+          res.send(error)
+        })
+    })
+  })
+
+router
+  .route('/:proxyNumber/blacklist')
+  .post((req, res) => {
+    User.findOne({ proxyNumber: req.params.proxyNumber }).then(user => {
+      const blacklist = user.blacklist.concat(req.body.blacklist)
+      User.findOneAndUpdate(
+        { proxyNumber: req.params.proxyNumber },
+        { blacklist }
+      )
+        .exec()
+        .then(result => {
+          res.send(result)
+        })
+        .catch(error => {
+          res.send(error)
+        })
+    })
+  })
+  .delete((req, res) => {
+    User.findOne({ proxyNumber: req.params.proxyNumber }).then(user => {
+      const blacklist = user.blacklist.filter(
+        number => !req.body.blacklist.includes(number)
+      )
+      User.findOneAndUpdate(
+        { proxyNumber: req.params.proxyNumber },
+        { blacklist }
       )
         .exec()
         .then(result => {

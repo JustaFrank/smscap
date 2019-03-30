@@ -5,6 +5,7 @@ const userSchema = new Schema({
   proxyNumber: String,
   number: String,
   whitelist: [String],
+  blacklist: [String],
   callHistory: [
     {
       from: String,
