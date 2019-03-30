@@ -104,6 +104,7 @@ router
   .post((req, res) => {
     User.findOne({ proxyNumber: req.params.proxyNumber }).then(user => {
       const ongoingSMS = user.ongoingSMS.concat(req.body.ongoingSMS)
+      console.log(ongoingSMS)
       User.findOneAndUpdate(
         { proxyNumber: req.params.proxyNumber },
         { ongoingSMS }

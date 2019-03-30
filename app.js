@@ -16,7 +16,7 @@ const urlencoded = require('body-parser').urlencoded
 const app = express()
 const session = require('express-session')
 const port = 6969
-
+const captcha = require('./cap.js')
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
 
@@ -103,19 +103,20 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, userNumber, ongoingSMS.message)
     sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
   } else if (ongoingSMS === false) {
-    signale.note('Invalid code')
-    sendSMS(proxyNumber, callerNumber, 'Invalid code! 🙅‍♀️ Resend your message.')
+    signale.note('Incorrect')
+    sendSMS(proxyNumber, callerNumber, 'Incorrect! 🙅‍♀️ Resend your message.')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
-    if (await isWhitelisted(proxyNumber, callerNumber)) {
+    if (!(await isWhitelisted(proxyNumber, callerNumber))) {
       signale.note('Detected message as spam.')
-      const authCode = getCode()
+      const cap = await captcha.getCaptcha()
+      console.log(cap)
       sendSMS(
         proxyNumber,
         callerNumber,
-        `This message was detected as spam. 🤨 Please reply with the following code: ${authCode}.`
+        `This message was detected as spam. 🤨 Please answer the following question:\n ${cap.q}`
       )
-      addOngoingSMS(proxyNumber, callerNumber, authCode, reply)
+      addOngoingSMS(proxyNumber, callerNumber, cap, reply)
     } else {
       signale.note('Not spam.')
       const user = await getUser(proxyNumber)
@@ -140,10 +141,7 @@ async function isWhitelisted (proxyNumber, number) {
     json: true
   }
   return rp(options).then(user => {
-    if (user && user.whitelist.includes(number)) {
-      return false
-    }
-    return true
+    return user && user.whitelist.includes(number)
   })
 }
 
@@ -159,7 +157,8 @@ async function isOngoingSMS (proxyNumber, callerNumber, content) {
         sms => sms.callerNumber === callerNumber
       )[0]
       if (ongoingSMS) {
-        if (content === ongoingSMS.code) {
+        console.log(ongoingSMS)
+        if (captcha.validateAnswer(content, ongoingSMS.answers)) {
           return { number: user.number, message: ongoingSMS.message }
         } else {
           return false
@@ -170,11 +169,11 @@ async function isOngoingSMS (proxyNumber, callerNumber, content) {
   })
 }
 
-async function addOngoingSMS (proxyNumber, callerNumber, code, message) {
+async function addOngoingSMS (proxyNumber, callerNumber, cap, message) {
   const options = {
     method: 'post',
     url: `http://localhost:${port}/user/${proxyNumber}/ongoingSMS`,
-    body: { ongoingSMS: { callerNumber, code, message } },
+    body: { ongoingSMS: { callerNumber, question: cap.q, answers: cap.a, message } },
     json: true
   }
   rp(options)
