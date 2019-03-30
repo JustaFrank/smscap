@@ -94,7 +94,7 @@ app.post('/sms/incoming', async (req, res) => {
   const proxyNumber = req.body.To
   const content = req.body.Body
 
-  const visibleNumber = getUserByNumber(callerNumber) || callerNumber
+  const visibleNumber = (await getUserByNumber(callerNumber)) || callerNumber
 
   const reply = `${visibleNumber}: ${content}`
   signale.note(reply)
