@@ -231,7 +231,7 @@ async function removeFromWhitelist (proxyNumber, number) {
 }
 
 function sendSMS (from, to, body) {
-  this.signale.info(`Sending from ${from} to ${to}: ${body}`)
+  signale.info(`Sending from ${from} to ${to}: ${body}`)
   client.messages.create({
     from,
     to,
