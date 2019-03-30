@@ -94,7 +94,9 @@ app.post('/sms/incoming', async (req, res) => {
   const proxyNumber = req.body.To
   const content = req.body.Body
 
-  const visibleNumber = (await getUserByNumber(callerNumber)) || callerNumber
+  const sendingUser = await getUserByNumber(callerNumber)
+  const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
+  const visibleNumber = sendingUser ? sendingUser.proxyNumber : callerNumber
 
   const reply = `${visibleNumber}: ${content}`
   signale.note(reply)
@@ -106,7 +108,7 @@ app.post('/sms/incoming', async (req, res) => {
     removeOngoingSMS(proxyNumber, callerNumber)
     addToWhitelist(proxyNumber, callerNumber)
     const userNumber = ongoingSMS.number
-    sendSMS(proxyNumber, userNumber, ongoingSMS.message)
+    sendSMS(sender, userNumber, ongoingSMS.message)
     sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
   } else if (ongoingSMS === false) {
     signale.note('Incorrect')
@@ -128,7 +130,7 @@ app.post('/sms/incoming', async (req, res) => {
     } else {
       signale.note('Message detected as not spam.')
       const user = await getUserByProxyNumber(proxyNumber)
-      sendSMS(proxyNumber, user.number, reply)
+      sendSMS(sender, user.number, reply)
     }
   }
 })
