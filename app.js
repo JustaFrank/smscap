@@ -5,6 +5,8 @@ require('dotenv').config()
 
 const accountSid = process.env.ACCOUNT_SID
 const authToken = process.env.AUTH_TOKEN
+console.log(accountSid)
+console.log(authToken)
 const client = require('twilio')(accountSid, authToken)
 const signale = require('signale')
 const VoiceResponse = require('twilio').twiml.VoiceResponse
