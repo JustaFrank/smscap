@@ -15,5 +15,13 @@
   "bugs": {
     "url": "https://github.com/JustaFrank/smscap/issues"
   },
-  "homepage": "https://github.com/JustaFrank/smscap#readme"
+  "homepage": "https://github.com/JustaFrank/smscap#readme",
+  "dependencies": {
+    "body-parser": "^1.18.3",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "mongoose": "^5.4.20",
+    "twilio": "^3.30.0",
+    "uuid": "^3.3.2"
+  }
 }
