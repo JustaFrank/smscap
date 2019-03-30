@@ -1,8 +1,12 @@
 /* eslint-disable no-unused-vars */
+const port = process.env.PORT || 6969
+
 require('dotenv').config()
 
 const accountSid = process.env.ACCOUNT_SID
 const authToken = process.env.AUTH_TOKEN
+console.log(accountSid)
+console.log(authToken)
 const client = require('twilio')(accountSid, authToken)
 const signale = require('signale')
 const VoiceResponse = require('twilio').twiml.VoiceResponse
@@ -31,6 +35,8 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
 const user = require('./routes/user')
+
+app.get('/', (req, res) => res.send('Teleguard: built at LA Hacks 2019'))
 
 app.use('/user/', user)
 
@@ -68,7 +74,7 @@ app.post('/call/authcode/:correctCode', (req, res) => {
   signale.info(`Recieved auth code: ${req.body.Digits}`)
 
   if (req.body.Digits) {
-    if (req.body.Digits === req.params.correctCode) {
+    if (req.body.Digits.toString() === req.params.correctCode) {
       signale.success('Auth code corrrect - redirecting to caller')
       twiml.say('Code is correct. Redirecting you to caller...')
       twiml.dial('5106405189')
@@ -221,4 +227,4 @@ function getCode () {
   return Math.round(Math.random() * 8999 + 1000)
 }
 // Create an HTTP server and listen for requests on port 3000
-app.listen(6969, () => signale.start(`App running at port ${port}`))
+app.listen(port, () => signale.start(`App running at port ${port}`))
