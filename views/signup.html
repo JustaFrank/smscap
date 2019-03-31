@@ -58,10 +58,20 @@
             var isNewUser = authResult.additionalUserInfo.isNewUser;
             var providerId = authResult.additionalUserInfo.providerId;
             var operationType = authResult.operationType;
+
+            const availableNumber = await getAvailableProxyNumber()
+            if (availableNumber) {
+              const proxyNumber = availableNumber.number
+              removeNumber(proxyNumber)
+              addUser(phoneNumber, proxyNumber)
+              window.location.href = `/dashboard/${proxyNumber}/account`
+            } else {
+              alert("Sorry, we're out of proxy numbers right now!")
+            }
+
             // Do something with the returned AuthResult.
             // Return type determines whether we continue the redirect automatically
             // or whether we leave that to developer to handle.
-            window.location.href = `/dashboard?number=${user.phoneNumber}`
             return false
           }
       }
