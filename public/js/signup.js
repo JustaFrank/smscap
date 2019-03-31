@@ -22,15 +22,13 @@ $(document).ready(() => {
       } else {
         alert("Sorry, we're out of proxy numbers right now!")
       }
-      // window.location.href = `http://localhost:6969/dashboard/${formattedNumber}/account`
-      // window.location.href = `http://lahacks-teleguard.herokuapp.com/dashboard/${formattedNumber}/account`
     } else {
       alert('Invalid phone number.')
     }
   })
 
   $('#btnLogin').on('click', () => {
-    window.location.href = 'https://lahacks-teleguard.herokuapp.com/'
+    window.location.href = '/'
   })
 })
 
