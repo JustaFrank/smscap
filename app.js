@@ -203,7 +203,8 @@ app.post('/sms/incoming', async (req, res) => {
       }
     }
   }
-  console.timeend(`Full Request: ${callerNumber} => ${proxyNumber}: ${content}`)
+  console.timeEnd(`Full Request: ${callerNumber} => ${proxyNumber}: ${content}`)
+  res.end()
 })
 
 async function getUserByProxyNumber (proxyNumber) {
