@@ -18,6 +18,18 @@ const urlencoded = require('body-parser').urlencoded
 const app = express()
 const session = require('express-session')
 const captcha = require('./cap.js')
+
+const automl = require('@google-cloud/automl')
+
+const mlClient = new automl.v1beta1.PredictionServiceClient({
+  projectId: 'ringed-magpie-220504',
+  credentials: {
+    'private_key': process.env.GOOGLE_CLOUD_PRIVATE_KEY,
+    'client_email': 'lahacks2@ringed-magpie-220504.iam.gserviceaccount.com'
+  }
+})
+
+isSpam('sdfsadf')
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
 
@@ -153,7 +165,7 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
-    if (!(await isWhitelisted(proxyNumber, callerNumber))) {
+    if (!(await isWhitelisted(proxyNumber, callerNumber)) && (await isSpam(content))) {
       signale.note('Detected message as spam.')
       const cap = await captcha.getCaptcha()
       console.log(cap)
@@ -290,8 +302,32 @@ function sendSMS (from, to, body) {
   })
 }
 
+async function isSpam (text) {
+  const formattedName = mlClient.modelPath('ringed-magpie-220504', 'us-central1', 'TCN1208361503398118068')
+  const request = {
+    name: formattedName,
+    payload: {
+      textSnippet: {
+        content: text,
+        mimeType: 'text/plain'
+      }
+    }
+  }
+  try {
+    let response = (await mlClient.predict(request))[0]
+    let score = response.payload.filter(x => x.displayName === 'spam')[0].classification.score
+    signale.info(`${text} got a spam detection score of ${score}`)
+    return score > 0.5
+  } catch (e) {
+    console.log(e)
+    return true
+  }
+}
 function getCode () {
   return Math.round(Math.random() * 8999 + 1000)
 }
 // Create an HTTP server and listen for requests on port 3000
-app.listen(port, () => signale.start(`App running at port ${port}`))
+app.listen(port, async () => {
+  signale.start(`App running at port ${port}`)
+  // console.log(await isSpam('fsalkdjfkldsjfkldskf'))
+})
