@@ -43,11 +43,19 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: true }))
 
+app.use(express.static('public'))
+
+const path = require('path')
+app.get('/', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/index.html'))
+)
+
 const user = require('./routes/user')
-
-app.get('/', (req, res) => res.send('Teleguard: built at LA Hacks 2019'))
-
 app.use('/user/', user)
+
+app.get('/dashboard/:proxyNumber/account', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/account.html'))
+)
 
 // Create a route that will handle Twilio webhook requests, sent as an
 // HTTP POST to /voice in our application
@@ -111,7 +119,9 @@ app.post('/call/authcode/:correctCode', async (req, res) => {
     } else {
       signale.warn('Auth code incorrect - asking again')
       twiml.say(`The code ${req.body.Digits} is wrong.`)
-      twiml.say('You have been blocked. If you would like to leave a message, please do so after the beep, and press star.')
+      twiml.say(
+        'You have been blocked. If you would like to leave a message, please do so after the beep, and press star.'
+      )
       twiml.record({
         action: '/recordings',
         transcribe: true,
