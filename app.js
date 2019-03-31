@@ -55,6 +55,15 @@ app.use('/user/', user)
 app.get('/dashboard/:proxyNumber/account', (req, res) =>
   res.sendFile(path.join(__dirname, './views/account.html'))
 )
+app.get('/dashboard/:proxyNumber/whitelist', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/whitelist.html'))
+)
+app.get('/dashboard/:proxyNumber/blacklist', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/blacklist.html'))
+)
+app.get('/dashboard/:proxyNumber/history', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/history.html'))
+)
 
 // Create a route that will handle Twilio webhook requests, sent as an
 // HTTP POST to /voice in our application
@@ -176,15 +185,13 @@ app.post('/sms/incoming', async (req, res) => {
       const userNumber = ongoingSMS.number
       sendSMS(sender, userNumber, ongoingSMS.message)
       sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
-    } else if (await ongoingSMSPromise === false) {
+    } else if ((await ongoingSMSPromise) === false) {
       signale.note('Incorrect')
       sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
       removeOngoingSMS(proxyNumber, callerNumber)
     } else {
       let r = await Promise.all([isWhitelistedPromise, isSpamPromise])
-      if (
-        !r[0] && r[1]
-      ) {
+      if (!r[0] && r[1]) {
         signale.note('Detected message as spam.')
         const cap = await capPromise
         console.log(cap)
