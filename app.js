@@ -49,6 +49,9 @@ app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, './views/index.html'))
 )
 
+const phoneNumber = require('./routes/phoneNumber')
+app.use('/number/', phoneNumber)
+
 const user = require('./routes/user')
 app.use('/user/', user)
 
