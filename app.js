@@ -159,7 +159,7 @@ app.post('/sms/incoming', async (req, res) => {
   const isSpamPromise = isSpam(content)
   const capPromise = captcha.getCaptcha()
 
-  if (await isBlacklistedPromise(proxyNumber, callerNumber)) {
+  if (await isBlacklistedPromise) {
     signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
     sendSMS(proxyNumber, callerNumber, `You've been blacklisted! ❌`)
   } else {
