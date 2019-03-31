@@ -57,20 +57,20 @@ async function getAvailableProxyNumber () {
   }
 }
 
-async function removeNumber (number) {
+async function removeNumber (number, cb) {
   const url = `https://lahacks-teleguard.herokuapp.com/number/${number}`
   $.ajax({
     url,
     type: 'DELETE',
     success: () => {
       console.log('Success removing number')
-      tagToRemove.remove()
+      cb()
     },
     error: err => console.log('Error removing number: ' + err)
   })
 }
 
-async function addUser (number, proxyNumber) {
+async function addUser (number, proxyNumber, cb) {
   const url = `https://lahacks-teleguard.herokuapp.com/user`
   $.ajax({
     url,
@@ -83,7 +83,7 @@ async function addUser (number, proxyNumber) {
     contentType: 'application/json;charset=utf-8',
     success: () => {
       console.log('Success creating user')
-      tagToRemove.remove()
+      cb()
     },
     error: err => console.log('Error creating user: ' + err)
   })

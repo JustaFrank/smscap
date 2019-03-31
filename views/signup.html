@@ -25,7 +25,8 @@
   </script>
   <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
   <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
-  
+  <link rel="shortcut icon" type="image/png" href="../images/logo.png"/>
+
 
   <script type="text/javascript">
     // FirebaseUI config.
@@ -52,7 +53,7 @@
         window.location.assign('<your-privacy-policy-url>');
       },
       callbacks:{
-        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+        signInSuccessWithAuthResult: async function(authResult, redirectUrl) {
             var user = authResult.user;
             var credential = authResult.credential;
             var isNewUser = authResult.additionalUserInfo.isNewUser;
@@ -60,20 +61,28 @@
             var operationType = authResult.operationType;
 
             const availableNumber = await getAvailableProxyNumber()
+            console.log(availableNumber)
             if (availableNumber) {
               const proxyNumber = availableNumber.number
-              removeNumber(proxyNumber)
-              addUser(phoneNumber, proxyNumber)
-              window.location.href = `/dashboard/${proxyNumber}/account`
-            } else {
-              alert("Sorry, we're out of proxy numbers right now!")
-            }
+              const phoneNumber = user.phoneNumber
+              await removeNumber(proxyNumber, () => {
+                addUser(phoneNumber, proxyNumber, () => {
+                  window.location.href = `/dashboard/${proxyNumber}/account`
+                })
+              })
+              return false
+            } 
+            alert("Sorry, we're out of proxy numbers right now!")
+            window.location.href = `/`
+
 
             // Do something with the returned AuthResult.
             // Return type determines whether we continue the redirect automatically
             // or whether we leave that to developer to handle.
+
             return false
           }
+          
       }
     };
 
@@ -88,7 +97,7 @@
 <body>
   <div class="d-flex align-items-center" style="height:90%;">
     <div class="container" id="firebaseui-auth-container">
-      <h1 class="text-center mb-2 custom-header"><img src="./images/logo.png" alt="" height="35px" width="35px" class="mb-2 mr-1"><span style="color: #E74C3C;">Tele</span><em>Guard</em></h1>
+      <h1 class="text-center mb-2 custom-header"><img src="../../images/logo.png" alt="" height="35px" width="35px" class="mb-2 mr-1"><span style="color: #E74C3C;">Tele</span><em>Guard</em></h1>
       <h4 id="hText" class="text-center mb-3 custom-header">SIGN UP</h4>
       <!-- <div class="form-group mb-4">
         <input id="inputPhoneNumber" type="text" placeholder="Enter your phone number" class="form-control custom-input">
