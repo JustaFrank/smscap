@@ -342,6 +342,8 @@ function sendSMS (from, to, body) {
     body
   }).then(res => {
     console.log(res)
+  }).catch(err => {
+    console.log(err)
   })
 }
 
