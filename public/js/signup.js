@@ -9,8 +9,8 @@ $(document).ready(() => {
       const availableNumber = await getAvailableProxyNumber()
       if (availableNumber) {
         const proxyNumber = availableNumber.number
-        // removeNumber(proxyNumber)
-        // addUser(phoneNumber, proxyNumber)
+        removeNumber(proxyNumber)
+        addUser(phoneNumber, proxyNumber)
         $('#inputPhoneNumber').hide()
         $('#btnSignUp').hide()
         $('#btnLogin').show()
