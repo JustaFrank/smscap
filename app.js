@@ -155,7 +155,6 @@ app.post('/sms/incoming', async (req, res) => {
 
   const sendingUser = await getUserByNumber(callerNumber)
   const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
-  const visibleNumber = sendingUser ? sendingUser.proxyNumber : callerNumber
 
   const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
   signale.note(reply)
@@ -238,7 +237,10 @@ async function isBlacklisted (proxyNumber, number) {
     json: true
   }
   return rp(options).then(user => {
-    return user && user.blacklist.includes(number)
+    console.log(user)
+    const blacklist = user && user.blacklist.includes(number)
+    console.log(blacklist)
+    return blacklist
   })
 }
 
