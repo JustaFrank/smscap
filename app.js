@@ -29,9 +29,6 @@ const mlClient = new automl.v1beta1.PredictionServiceClient({
   }
 })
 
-console.log('key: ' + process.env.GOOGLE_CLOUD_PRIVATE_KEY)
-
-isSpam('sdfsadf')
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
 
@@ -152,51 +149,62 @@ app.post('/sms/incoming', async (req, res) => {
   const callerNumber = req.body.From
   const proxyNumber = req.body.To
   const content = req.body.Body
+  console.time(`Full Request: ${callerNumber} => ${proxyNumber}: ${content}`)
 
-  const sendingUser = await getUserByNumber(callerNumber)
-  const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
+  const sendingUserPromise = getUserByNumber(callerNumber)
+  const ongoingSMSPromise = isOngoingSMS(proxyNumber, callerNumber, content)
+  const userPromise = getUserByProxyNumber(proxyNumber)
+  const isBlacklistedPromise = isBlacklisted(proxyNumber, callerNumber)
+  const isWhitelistedPromise = isWhitelisted(proxyNumber, callerNumber)
+  const isSpamPromise = isSpam(content)
+  const capPromise = captcha.getCaptcha()
 
-  const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
-  signale.note(reply)
-
-  const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
-
-  if (await isBlacklisted(proxyNumber, callerNumber)) {
+  if (await isBlacklistedPromise) {
     signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
     sendSMS(proxyNumber, callerNumber, `You've been blacklisted! ❌`)
-  } else if (ongoingSMS) {
-    signale.note('Is an ongoing SMS')
-    removeOngoingSMS(proxyNumber, callerNumber)
-    addToWhitelist(proxyNumber, callerNumber)
-    const userNumber = ongoingSMS.number
-    sendSMS(sender, userNumber, ongoingSMS.message)
-    sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
-  } else if (ongoingSMS === false) {
-    signale.note('Incorrect')
-    sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
-    removeOngoingSMS(proxyNumber, callerNumber)
   } else {
-    if (
-      !(await isWhitelisted(proxyNumber, callerNumber)) &&
-      (await isSpam(content))
-    ) {
-      signale.note('Detected message as spam.')
-      const cap = await captcha.getCaptcha()
-      console.log(cap)
-      sendSMS(
-        proxyNumber,
-        callerNumber,
-        `This message was detected as spam. 🤨 Please answer the following question: ${
-          cap.q
-        }`
-      )
-      addOngoingSMS(proxyNumber, callerNumber, cap, reply)
+    const sendingUser = await sendingUserPromise
+    const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
+    const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
+    signale.note(reply)
+
+    if (await ongoingSMSPromise) {
+      signale.note('Is an ongoing SMS')
+      removeOngoingSMS(proxyNumber, callerNumber)
+      addToWhitelist(proxyNumber, callerNumber)
+      let ongoingSMS = await ongoingSMSPromise
+      const userNumber = ongoingSMS.number
+      sendSMS(sender, userNumber, ongoingSMS.message)
+      sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
+    } else if (await ongoingSMSPromise === false) {
+      signale.note('Incorrect')
+      sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
+      removeOngoingSMS(proxyNumber, callerNumber)
     } else {
-      signale.note('Message detected as not spam.')
-      const user = await getUserByProxyNumber(proxyNumber)
-      sendSMS(sender, user.number, reply)
+      let r = await Promise.all([isWhitelistedPromise, isSpamPromise])
+      if (
+        !r[0] && r[1]
+      ) {
+        signale.note('Detected message as spam.')
+        const cap = await capPromise
+        console.log(cap)
+        sendSMS(
+          proxyNumber,
+          callerNumber,
+          `This message was detected as spam. 🤨 Please answer the following question: ${
+            cap.q
+          }`
+        )
+        addOngoingSMS(proxyNumber, callerNumber, cap, reply)
+      } else {
+        signale.note('Message detected as not spam.')
+        let user = await userPromise
+        sendSMS(sender, user.number, reply)
+      }
     }
   }
+  console.timeEnd(`Full Request: ${callerNumber} => ${proxyNumber}: ${content}`)
+  res.end()
 })
 
 async function getUserByProxyNumber (proxyNumber) {
