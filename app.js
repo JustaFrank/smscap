@@ -24,10 +24,12 @@ const automl = require('@google-cloud/automl')
 const mlClient = new automl.v1beta1.PredictionServiceClient({
   projectId: 'ringed-magpie-220504',
   credentials: {
-    'private_key': process.env.GOOGLE_CLOUD_PRIVATE_KEY,
-    'client_email': 'lahacks2@ringed-magpie-220504.iam.gserviceaccount.com'
+    private_key: process.env.GOOGLE_CLOUD_PRIVATE_KEY,
+    client_email: 'lahacks2@ringed-magpie-220504.iam.gserviceaccount.com'
   }
 })
+
+console.log('key: ' + process.env.GOOGLE_CLOUD_PRIVATE_KEY)
 
 isSpam('sdfsadf')
 // Parse incoming POST params with Express middleware
@@ -175,7 +177,10 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
-    if (!(await isWhitelisted(proxyNumber, callerNumber)) && (await isSpam(content))) {
+    if (
+      !(await isWhitelisted(proxyNumber, callerNumber)) &&
+      (await isSpam(content))
+    ) {
       signale.note('Detected message as spam.')
       const cap = await captcha.getCaptcha()
       console.log(cap)
@@ -313,7 +318,11 @@ function sendSMS (from, to, body) {
 }
 
 async function isSpam (text) {
-  const formattedName = mlClient.modelPath('ringed-magpie-220504', 'us-central1', 'TCN1208361503398118068')
+  const formattedName = mlClient.modelPath(
+    'ringed-magpie-220504',
+    'us-central1',
+    'TCN1208361503398118068'
+  )
   const request = {
     name: formattedName,
     payload: {
@@ -325,7 +334,8 @@ async function isSpam (text) {
   }
   try {
     let response = (await mlClient.predict(request))[0]
-    let score = response.payload.filter(x => x.displayName === 'spam')[0].classification.score
+    let score = response.payload.filter(x => x.displayName === 'spam')[0]
+      .classification.score
     signale.info(`${text} got a spam detection score of ${score}`)
     return score > 0.5
   } catch (e) {
