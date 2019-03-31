@@ -86,6 +86,8 @@ app.post('/call/authcode/:correctCode', (req, res) => {
   // Use the Twilio Node.js SDK to build an XML response
   const twiml = new VoiceResponse()
   const proxyNum = req.body.To
+  const targetUser = getUserByProxyNumber(proxyNum)
+  console.log(targetUser)
   // If the user entered digits, process their request
   signale.info(`Recieved auth code: ${req.body.Digits}`)
 
@@ -93,7 +95,7 @@ app.post('/call/authcode/:correctCode', (req, res) => {
     if (req.body.Digits.toString() === req.params.correctCode) {
       signale.success('Auth code corrrect - redirecting to caller')
       twiml.say('Code is correct. Redirecting you to caller...')
-      twiml.dial(getUserByProxyNumber(proxyNum).number)
+      twiml.dial(targetUser.number)
     } else {
       signale.warn('Auth code incorrect - asking again')
       twiml.say(`The code ${req.body.Digits} is wrong.`)
