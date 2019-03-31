@@ -3,7 +3,7 @@
 $(document).ready(() => {
   $('#btnFindNumber').on('click', async () => {
     const proxyNumber = $('#inputProxyNumber').val()
-    const formattedNumber = formatNumber(proxyNumber)
+    const formattedNumber = compressNumber(proxyNumber)
     if (formattedNumber && (await isUser(formattedNumber))) {
       window.location.href = `http://localhost:6969/dashboard/${formattedNumber}/account`
       // window.location.href = `http://lahacks-teleguard.herokuapp.com/dashboard/${formattedNumber}/account`
@@ -11,10 +11,14 @@ $(document).ready(() => {
       alert('Invalid phone number.')
     }
   })
+  $('#btnSignUp').on('click', () => {
+    window.location.href = `http://localhost:6969/signup`
+    // window.location.href = `http://lahacks-teleguard.herokuapp.com/signup`
+  })
 })
 
-function formatNumber (number) {
-  const numberString = number.replace(/\(|\)| /g, '')
+function compressNumber (number) {
+  const numberString = number.replace(/\(|\)| |\+1|-/g, '')
   if (!isNaN(numberString) && numberString.length === 10) {
     return `+1${numberString}`
   }

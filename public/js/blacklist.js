@@ -5,18 +5,63 @@ $(document).ready(async () => {
     /dashboard\/(.*)\/blacklist/i
   )[1]
   const user = await findUser(userProxyNumber)
-  $('#hProxyNumber').html(
-    `Your proxy number is: <b>${formatNumber(user.proxyNumber)}</b>`
-  )
-  $('#colPhoneNumber').append(`<br />${formatNumber(user.number)}`)
-  $('#colWhitelist').append(
-    user.whitelist.map(num => '<br>' + formatNumber(num)).join()
-  )
-  $('#colBlacklist').append(
-    user.blacklist.map(num => '<br>' + formatNumber(num)).join()
-  )
-  console.log(user)
+  user.blacklist.forEach(addListNumber)
+
+  $('#btnBlacklistNumber').on('click', () => {
+    const numToAdd = compressNumber($('#inputBlacklistNumber').val())
+    console.log(numToAdd)
+    const url = `https://lahacks-teleguard.herokuapp.com/user/${
+      user.proxyNumber
+    }/blacklist`
+    console.log(url)
+    numToAdd &&
+      $.ajax({
+        url,
+        type: 'POST',
+        data: JSON.stringify({ blacklist: [numToAdd] }),
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        success: () => {
+          console.log('Success adding number to blacklist')
+          addListNumber(numToAdd)
+        },
+        error: err => console.log('Error adding number to blacklist: ' + err)
+      })
+  })
+
+  $('.delete-blacklist-item').on('click', function () {
+    const tagToRemove = $(this)
+      .parent()
+      .parent()
+      .parent()
+    const numToRemove = tagToRemove.attr('id')
+    const url = `https://lahacks-teleguard.herokuapp.com/user/${
+      user.proxyNumber
+    }/blacklist`
+    numToRemove &&
+      $.ajax({
+        url,
+        type: 'DELETE',
+        data: JSON.stringify({ blacklist: [numToRemove] }),
+        dataType: 'json',
+        contentType: 'application/json;charset=utf-8',
+        success: () => {
+          console.log('Success removing number to blacklist')
+          tagToRemove.remove()
+        },
+        error: err => console.log('Error removing number to blacklist: ' + err)
+      })
+  })
 })
+
+function addListNumber (number) {
+  $('#ulBlacklist').append(
+    `<li id="${number}" class="list-group-item"><div class="row"><div class="col">${formatNumber(
+      number
+    )}</div><div class="col text-right"><i class="fas delete-blacklist-item custom-delete-icon fa-minus-circle"></i></div></div>
+    </li>`
+  )
+}
 
 async function findUser (number) {
   const url = `https://lahacks-teleguard.herokuapp.com/user/${number}`
@@ -32,6 +77,14 @@ async function findUser (number) {
 function formatNumber (number) {
   return `+1 (${number.slice(2, 5)})-${number.slice(5, 8)}-${number.slice(
     8,
-    11
+    12
   )}`
+}
+
+function compressNumber (number) {
+  const numberString = number.replace(/\(|\)| |\+1|-/g, '')
+  if (!isNaN(numberString) && numberString.length === 10) {
+    return `+1${numberString}`
+  }
+  return undefined
 }

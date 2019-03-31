@@ -64,6 +64,9 @@ app.get('/dashboard/:proxyNumber/blacklist', (req, res) =>
 app.get('/dashboard/:proxyNumber/history', (req, res) =>
   res.sendFile(path.join(__dirname, './views/history.html'))
 )
+app.get('/signup', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/signup.html'))
+)
 
 // Create a route that will handle Twilio webhook requests, sent as an
 // HTTP POST to /voice in our application

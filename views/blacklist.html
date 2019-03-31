@@ -14,21 +14,17 @@
   <title>TeleGuard</title>
 </head>
 <body>
-  <h1 class="text-center mb-0 mt-5 custom-header"><a href="https://lahacks-teleguard.herokuapp.com"><span style="color: #E74C3C;">Tele</span><em>Guard</em></a></h1>
+  <h1 class="text-center mb-0 mt-5 custom-header"><a href="https://lahacks-teleguard.herokuapp.com"><span style="color: #E74C3C;">🛡Tele</span><em>Guard</em></a></h1>
   <nav class="navbar navbar-expand-lg navbar-light">
-    <div class="navbar-toggler" data-toggle="collapse" data-target="#navDashboardMenu" aria-controls="navDashboardMenu" aria-expanded="false" aria-label="Toggle navigation">
-      <i class="custom-icon fas fa-lg fa-bars"></i>
-    </div>
-  
     <div class="collapse navbar-collapse" id="navDashboardMenu">
       <ul class="navbar-nav mr-auto ml-auto">
         <li class="nav-item">
           <a class="nav-link" href="./account">Account</a>
         </li>
-        <li class="nav-item">
+        <li class="nav-item active">
           <a class="nav-link" href="./whitelist">Whitelist</a>
         </li>
-        <li class="nav-item active">
+        <li class="nav-item">
           <a class="nav-link" href="./blacklist">Blacklist</a>
         </li>
         <li class="nav-item">
@@ -41,21 +37,12 @@
   <div class="container">
     <div class="card custom-card">
       <div class="card-body">
-        <h5 id="hProxyNumber" class="card-title mb-3">Your Proxy Number is: </h5>
-        <div class="row">
-          <div id="colPhoneNumber" class="col col-lg-3 col-sm-12">
-            <small class="custom-label">PHONE NUMBER</small>
-          </div>
-          <div id="colWhitelist" class="col col-lg-3 col-sm-12">
-            <small class="custom-label">WHITELIST</small>
-          </div>
-          <div id="colBlacklist" class="col col-lg-3 col-sm-12">
-            <small class="custom-label">BLACKLIST</small>
-          </div>
-          <div  id="colHistory" class="col col-lg-3 col-sm-12">
-            <small class="custom-label">HISTORY</small>
-          </div>
+        <h5 id="hProxyNumber" class="card-title mb-3">Blacklist</h5>
+        <div class="form-group">
+          <input id="inputBlacklistNumber" type="text" placeholder="Add phone number to blacklist" class="form-control custom-input-2">
+          <button id="btnBlacklistNumber" class="custom-button-2 ml-2">Add</button>
         </div>
+        <ul id="ulBlacklist" class="list-group"></ul>        
       </div>
     </div>    
   </div>

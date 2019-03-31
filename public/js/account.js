@@ -32,6 +32,6 @@ async function findUser (number) {
 function formatNumber (number) {
   return `+1 (${number.slice(2, 5)})-${number.slice(5, 8)}-${number.slice(
     8,
-    11
+    12
   )}`
 }

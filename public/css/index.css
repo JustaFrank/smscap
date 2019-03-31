@@ -19,6 +19,20 @@ a:active {
   box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1) !important;
   padding: 1.5rem 1.25rem;
   border-radius: 1.5rem;
+  display: inline;
+}
+
+.custom-input-2 {
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  background-color: #f5f6fa !important;
+  /* box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1) !important; */
+  padding: 1.25rem 1rem;
+  border-radius: 1.5rem;
+  width: calc(100% - 74px);
+  margin-right: 0;
+  display: inline;
 }
 
 .custom-card {
@@ -43,8 +57,36 @@ a:active {
   border-radius: 1.5rem;
 }
 
+.custom-button-2 {
+  outline: none !important;
+  border: none !important;
+  /* box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1) !important; */
+  background-color: #f44336;
+  color: white;
+  padding: calc(1.25rem - 12px) 1rem;
+  border-radius: 1.5rem;
+}
+
+.custom-button-3 {
+  outline: none !important;
+  border: none !important;
+  box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.1) !important;
+  background-color: #ad1457;
+  color: white;
+  padding: calc(1.5rem - 12px) 1.25rem;
+  border-radius: 1.5rem;
+}
+
 .custom-button:hover {
   background-color: #d32f2f;
+}
+
+.custom-button-2:hover {
+  background-color: #d32f2f;
+}
+
+.custom-button-3:hover {
+  background-color: #880e4f;
 }
 
 .custom-icon:hover {
@@ -54,4 +96,22 @@ a:active {
 .navbar-toggler {
   color: gray !important;
   border: none;
+}
+
+.list-group-item {
+  border: none !important;
+}
+
+.list-group-item:hover {
+  background-color: #f5f6fa;
+  border-radius: 0.25rem;
+}
+
+.custom-delete-icon {
+  color: #f44336;
+}
+
+.custom-delete-icon:hover {
+  color: #d32f2f;
+  cursor: pointer;
 }
