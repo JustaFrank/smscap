@@ -10,14 +10,77 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="./js/signup.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+  <script src="https://www.gstatic.com/firebasejs/5.9.2/firebase.js"></script>
+  <script>
+    // Initialize Firebase
+    var config = {
+      apiKey: "AIzaSyDIZNUj7_HIupGibza01dQeGkvJGxjHvIU",
+      authDomain: "ringed-magpie-220504.firebaseapp.com",
+      databaseURL: "https://ringed-magpie-220504.firebaseio.com",
+      projectId: "ringed-magpie-220504",
+      storageBucket: "ringed-magpie-220504.appspot.com",
+      messagingSenderId: "968898347672"
+    };
+    firebase.initializeApp(config);
+  </script>
+  <script src="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.js"></script>
+  <link type="text/css" rel="stylesheet" href="https://cdn.firebase.com/libs/firebaseui/3.5.2/firebaseui.css" />
+  
+
+  <script type="text/javascript">
+    // FirebaseUI config.
+    var uiConfig = {
+      signInSuccessUrl: '',
+      signInOptions: [
+        // Leave the lines as is for the providers you want to offer your users.
+        {
+          provider: firebase.auth.PhoneAuthProvider.PROVIDER_ID,
+          // Invisible reCAPTCHA with image challenge and bottom left badge.
+          recaptchaParameters: {
+            type: 'image',
+            size: 'invisible',
+            badge: 'bottomleft'
+          }
+        }
+      ],
+      // tosUrl and privacyPolicyUrl accept either url string or a callback
+      // function.
+      // Terms of service url/callback.
+      tosUrl: '<your-tos-url>',
+      // Privacy policy url/callback.
+      privacyPolicyUrl: function() {
+        window.location.assign('<your-privacy-policy-url>');
+      },
+      callbacks:{
+        signInSuccessWithAuthResult: function(authResult, redirectUrl) {
+            var user = authResult.user;
+            var credential = authResult.credential;
+            var isNewUser = authResult.additionalUserInfo.isNewUser;
+            var providerId = authResult.additionalUserInfo.providerId;
+            var operationType = authResult.operationType;
+            // Do something with the returned AuthResult.
+            // Return type determines whether we continue the redirect automatically
+            // or whether we leave that to developer to handle.
+            window.location.href = `/dashboard?number=${user.phoneNumber}`
+            return false
+          }
+      }
+    };
+
+    // Initialize the FirebaseUI Widget using Firebase.
+    var ui = new firebaseui.auth.AuthUI(firebase.auth());
+    // The start method will wait until the DOM is loaded.
+    ui.start('#firebaseui-auth-container', uiConfig);
+  </script>
+
   <title>TeleGuard</title>
 </head>
 <body>
   <div class="d-flex align-items-center" style="height:90%;">
-    <div class="container">
+    <div class="container" id="firebaseui-auth-container">
       <h1 class="text-center mb-2 custom-header"><span style="color: #E74C3C;">🛡Tele</span><em>Guard</em></h1>
       <h4 id="hText" class="text-center mb-3 custom-header">SIGN UP</h4>
-      <div class="form-group mb-4">
+      <!-- <div class="form-group mb-4">
         <input id="inputPhoneNumber" type="text" placeholder="Enter your phone number" class="form-control custom-input">
       </div>
       <div class="text-center">
@@ -25,7 +88,7 @@
       </div>
       <div class="text-center">
         <button id="btnLogin" class="custom-button">Back to Login</button>
-      </div>
+      </div> -->
     </div>
   </div>
 </body>
