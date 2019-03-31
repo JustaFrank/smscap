@@ -155,11 +155,11 @@ app.post('/sms/incoming', async (req, res) => {
 
   const sendingUser = await getUserByNumber(callerNumber)
   const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
-
   const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
   signale.note(reply)
 
   const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
+  const userPromise = getUserByProxyNumber(proxyNumber)
 
   if (await isBlacklisted(proxyNumber, callerNumber)) {
     signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
@@ -176,7 +176,7 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
-    let r = await Promise.all(isWhitelisted(proxyNumber, callerNumber), isSpam(content))
+    let r = await Promise.all([isWhitelisted(proxyNumber, callerNumber), isSpam(content)])
     if (
       !r[0] && r[1]
     ) {
@@ -193,8 +193,9 @@ app.post('/sms/incoming', async (req, res) => {
       addOngoingSMS(proxyNumber, callerNumber, cap, reply)
     } else {
       signale.note('Message detected as not spam.')
-      const user = await getUserByProxyNumber(proxyNumber)
-      sendSMS(sender, user.number, reply)
+      userPromise.then(user => {
+        sendSMS(sender, user.number, reply)
+      })
     }
   }
 })
