@@ -363,7 +363,7 @@ async function isSpam (text) {
     let score = response.payload.filter(x => x.displayName === 'spam')[0]
       .classification.score
     signale.info(`${text} got a spam detection score of ${score}`)
-    return score > 0.5
+    return score > 0.65
   } catch (e) {
     console.log(e)
     return true
