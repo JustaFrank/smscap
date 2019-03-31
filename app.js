@@ -161,7 +161,7 @@ app.post('/sms/incoming', async (req, res) => {
 
   const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
 
-  if (isBlacklisted(proxyNumber, callerNumber)) {
+  if (await isBlacklisted(proxyNumber, callerNumber)) {
     signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
     sendSMS(proxyNumber, callerNumber, `You've been blacklisted! ❌`)
   } else if (ongoingSMS) {
@@ -236,12 +236,11 @@ async function isBlacklisted (proxyNumber, number) {
     url: `http://localhost:${port}/user/${proxyNumber}`,
     json: true
   }
-  return rp(options).then(user => {
-    console.log(user)
-    const blacklist = user && user.blacklist.includes(number)
-    console.log(blacklist)
-    return blacklist
-  })
+  let user = await rp(options)
+  console.log(user)
+  const blacklist = user && user.blacklist.includes(number)
+  console.log(blacklist)
+  return blacklist
 }
 
 async function isOngoingSMS (proxyNumber, callerNumber, content) {
