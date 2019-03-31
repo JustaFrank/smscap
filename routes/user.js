@@ -31,7 +31,7 @@ router
   })
 
 router
-  .route('number/:number')
+  .route('/number/:number')
   .get((req, res) => {
     User.findOne({ number: req.params.number })
       .exec()
