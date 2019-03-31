@@ -26,7 +26,7 @@ router
   })
 
 router
-  .route('/:proxyNumber')
+  .route('/:number')
   .get((req, res) => {
     PhoneNumber.findOne({ number: req.params.number })
       .exec()
