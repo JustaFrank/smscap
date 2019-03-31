@@ -1,12 +1,13 @@
 $(document).ready(() => {
   $('#btnFindNumber').on('click', async () => {
-    const proxyNumber = $('#inputProxyNumber').val()
-    const formattedNumber = compressNumber(proxyNumber)
-    if (formattedNumber && (await isUser(formattedNumber))) {
-      window.location.href = `/dashboard/${formattedNumber}/account`
-    } else {
-      alert('Invalid phone number.')
-    }
+    // const proxyNumber = $('#inputProxyNumber').val()
+    // const formattedNumber = compressNumber(proxyNumber)
+    // if (formattedNumber && (await isUser(formattedNumber))) {
+    //   window.location.href = `/dashboard/${formattedNumber}/account`
+    // } else {
+    //   alert('Invalid phone number.')
+    // }
+    window.location.href = `/login`
   })
   $('#btnSignUp').on('click', () => {
     window.location.href = `/signup`

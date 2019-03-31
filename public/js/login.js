@@ -34,10 +34,13 @@ var uiConfig = {
   },
   callbacks: {
     signInSuccessWithAuthResult: async function (authResult, redirectUrl) {
-      const user = authResult.user
-      const phoneNumber = user.phoneNumber
-      console.log(authResult)
-      alert(JSON.stringify(result))
+      const phoneNumber = authResult.user.phoneNumber
+      const user = await findUser(phoneNumber)
+      if (user) {
+        window.location.href = `/dashboard/${user.proxyNumber}/account`
+        return false
+      }
+      alert('Sorry, we could not find your account')
       // alert("Sorry, we're out of proxy numbers right now!")
       window.location.href = `/`
 
@@ -54,3 +57,17 @@ var uiConfig = {
 var ui = new firebaseui.auth.AuthUI(firebase.auth())
 // The start method will wait until the DOM is loaded.
 ui.start('#firebaseui-auth-container', uiConfig)
+
+async function findUser (number) {
+  const url = `https://lahacks-teleguard.herokuapp.com/user/number/${number}`
+  console.log(`Fetching data from ${url}`)
+  return fetch(url)
+    .then(res => res.json())
+    .then(json => {
+      return json
+    })
+    .catch(err => {
+      console.log(`An error occurred while fetching data: ${err}`)
+      return undefined
+    })
+}
