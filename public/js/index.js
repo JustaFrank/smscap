@@ -1,5 +1,3 @@
-/* eslint-disable no-undef */
-
 $(document).ready(() => {
   $('#btnFindNumber').on('click', async () => {
     const proxyNumber = $('#inputProxyNumber').val()

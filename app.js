@@ -71,8 +71,8 @@ app.get('/signup', (req, res) =>
   res.sendFile(path.join(__dirname, './views/signup.html'))
 )
 
-app.get('/test', (req, res) =>
-  res.sendFile(path.join(__dirname, './views/test.html'))
+app.get('/login', (req, res) =>
+  res.sendFile(path.join(__dirname, './views/login.html'))
 )
 
 // Create a route that will handle Twilio webhook requests, sent as an

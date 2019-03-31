@@ -31,6 +31,39 @@ router
   })
 
 router
+  .route('number/:number')
+  .get((req, res) => {
+    User.findOne({ number: req.params.number })
+      .exec()
+      .then(document => {
+        res.send(document)
+      })
+      .catch(error => {
+        res.send(error)
+      })
+  })
+  .patch((req, res) => {
+    User.findOneAndUpdate({ number: req.params.number }, req.body)
+      .exec()
+      .then(result => {
+        res.send(result)
+      })
+      .catch(error => {
+        res.send(error)
+      })
+  })
+  .delete((req, res) => {
+    User.findOneAndDelete({ number: req.params.number })
+      .exec()
+      .then(result => {
+        res.send(result)
+      })
+      .catch(error => {
+        res.send(error)
+      })
+  })
+
+router
   .route('/:proxyNumber')
   .get((req, res) => {
     User.findOne({ proxyNumber: req.params.proxyNumber })
