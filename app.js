@@ -85,7 +85,7 @@ app.post('/transcription', (req, res) => {
 app.post('/call/authcode/:correctCode', (req, res) => {
   // Use the Twilio Node.js SDK to build an XML response
   const twiml = new VoiceResponse()
-
+  const proxyNum = req.body.To
   // If the user entered digits, process their request
   signale.info(`Recieved auth code: ${req.body.Digits}`)
 
@@ -93,7 +93,7 @@ app.post('/call/authcode/:correctCode', (req, res) => {
     if (req.body.Digits.toString() === req.params.correctCode) {
       signale.success('Auth code corrrect - redirecting to caller')
       twiml.say('Code is correct. Redirecting you to caller...')
-      twiml.dial('5106405189')
+      twiml.dial(getUserByProxyNumber(proxyNum).number)
     } else {
       signale.warn('Auth code incorrect - asking again')
       twiml.say(`The code ${req.body.Digits} is wrong.`)
@@ -113,7 +113,6 @@ app.post('/call/authcode/:correctCode', (req, res) => {
   // Render the response as XML in reply to the webhook request
   res.type('text/xml')
   res.send(twiml.toString())
-  console.log(twiml.toString())
 })
 
 app.post('/recordings', (req, res) => {
