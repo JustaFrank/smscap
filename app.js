@@ -161,7 +161,7 @@ app.post('/sms/incoming', async (req, res) => {
   const isSpamPromise = isSpam(content)
   const capPromise = captcha.getCaptcha()
 
-  if (await isBlacklisted(proxyNumber, callerNumber)) {
+  if (await isBlacklistedPromise(proxyNumber, callerNumber)) {
     signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
     sendSMS(proxyNumber, callerNumber, `You've been blacklisted! ❌`)
   } else {
@@ -183,7 +183,7 @@ app.post('/sms/incoming', async (req, res) => {
       sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
       removeOngoingSMS(proxyNumber, callerNumber)
     } else {
-      let r = await Promise.all([isWhitelistedPromise, await isSpamPromise])
+      let r = await Promise.all([isWhitelistedPromise, isSpamPromise])
       if (
         !r[0] && r[1]
       ) {
