@@ -29,9 +29,6 @@ const mlClient = new automl.v1beta1.PredictionServiceClient({
   }
 })
 
-console.log('key: ' + process.env.GOOGLE_CLOUD_PRIVATE_KEY)
-
-isSpam('sdfsadf')
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
 
@@ -152,6 +149,7 @@ app.post('/sms/incoming', async (req, res) => {
   const callerNumber = req.body.From
   const proxyNumber = req.body.To
   const content = req.body.Body
+  console.time(`Full Request: ${callerNumber} => ${proxyNumber}: ${content}`)
 
   const sendingUserPromise = getUserByNumber(callerNumber)
   const ongoingSMSPromise = isOngoingSMS(proxyNumber, callerNumber, content)
@@ -205,6 +203,7 @@ app.post('/sms/incoming', async (req, res) => {
       }
     }
   }
+  console.timeend(`Full Request: ${callerNumber} => ${proxyNumber}: ${content}`)
 })
 
 async function getUserByProxyNumber (proxyNumber) {
