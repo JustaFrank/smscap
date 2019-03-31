@@ -340,6 +340,8 @@ function sendSMS (from, to, body) {
     from,
     to,
     body
+  }).then(res => {
+    console.log(res)
   })
 }
 
