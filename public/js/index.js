@@ -5,15 +5,15 @@ $(document).ready(() => {
     const proxyNumber = $('#inputProxyNumber').val()
     const formattedNumber = compressNumber(proxyNumber)
     if (formattedNumber && (await isUser(formattedNumber))) {
-      window.location.href = `http://localhost:6969/dashboard/${formattedNumber}/account`
-      // window.location.href = `http://lahacks-teleguard.herokuapp.com/dashboard/${formattedNumber}/account`
+      // window.location.href = `http://localhost:6969/dashboard/${formattedNumber}/account`
+      window.location.href = `http://lahacks-teleguard.herokuapp.com/dashboard/${formattedNumber}/account`
     } else {
       alert('Invalid phone number.')
     }
   })
   $('#btnSignUp').on('click', () => {
-    window.location.href = `http://localhost:6969/signup`
-    // window.location.href = `http://lahacks-teleguard.herokuapp.com/signup`
+    // window.location.href = `http://localhost:6969/signup`
+    window.location.href = `http://lahacks-teleguard.herokuapp.com/signup`
   })
 })
 
