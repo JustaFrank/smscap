@@ -5,8 +5,8 @@ $(document).ready(() => {
     const proxyNumber = $('#inputProxyNumber').val()
     const formattedNumber = formatNumber(proxyNumber)
     if (formattedNumber && (await isUser(formattedNumber))) {
-      window.location.href = `http://localhost:6969/dashboard/${formattedNumber}/account`
-      // window.location.href = `http://lahacks-teleguard.herokuapp.com/dashboard/${formattedNumber}/account`
+      // window.location.href = `http://localhost:6969/dashboard/${formattedNumber}/account`
+      window.location.href = `http://lahacks-teleguard.herokuapp.com/dashboard/${formattedNumber}/account`
     } else {
       alert('Invalid phone number.')
     }
