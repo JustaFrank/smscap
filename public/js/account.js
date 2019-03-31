@@ -9,8 +9,12 @@ $(document).ready(async () => {
     `Your proxy number is: <b>${formatNumber(user.proxyNumber)}</b>`
   )
   $('#colPhoneNumber').append(`<br />${formatNumber(user.number)}`)
-  $('#colWhitelist').append(user.whitelist.map(num => '<br>' + num).join())
-  $('#colBlacklist').append(user.blacklist.map(num => '<br>' + num).join())
+  $('#colWhitelist').append(
+    user.whitelist.map(num => '<br>' + formatNumber(num)).join()
+  )
+  $('#colBlacklist').append(
+    user.blacklist.map(num => '<br>' + formatNumber(num)).join()
+  )
   console.log(user)
 })
 
@@ -26,7 +30,7 @@ async function findUser (number) {
 }
 
 function formatNumber (number) {
-  return `+1(${number.slice(2, 5)})-${number.slice(5, 8)}-${number.slice(
+  return `+1 (${number.slice(2, 5)})-${number.slice(5, 8)}-${number.slice(
     8,
     11
   )}`
