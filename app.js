@@ -153,49 +153,56 @@ app.post('/sms/incoming', async (req, res) => {
   const proxyNumber = req.body.To
   const content = req.body.Body
 
-  const sendingUser = await getUserByNumber(callerNumber)
-  const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
-  const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
-  signale.note(reply)
-
-  const ongoingSMS = await isOngoingSMS(proxyNumber, callerNumber, content)
+  const sendingUserPromise = getUserByNumber(callerNumber)
+  const ongoingSMSPromise = isOngoingSMS(proxyNumber, callerNumber, content)
   const userPromise = getUserByProxyNumber(proxyNumber)
+  const isBlacklistedPromise = isBlacklisted(proxyNumber, callerNumber)
+  const isWhitelistedPromise = isWhitelisted(proxyNumber, callerNumber)
+  const isSpamPromise = isSpam(content)
+  const capPromise = captcha.getCaptcha()
 
   if (await isBlacklisted(proxyNumber, callerNumber)) {
     signale.note(`${callerNumber} has been blacklisted by ${proxyNumber}`)
     sendSMS(proxyNumber, callerNumber, `You've been blacklisted! ❌`)
-  } else if (ongoingSMS) {
-    signale.note('Is an ongoing SMS')
-    removeOngoingSMS(proxyNumber, callerNumber)
-    addToWhitelist(proxyNumber, callerNumber)
-    const userNumber = ongoingSMS.number
-    sendSMS(sender, userNumber, ongoingSMS.message)
-    sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
-  } else if (ongoingSMS === false) {
-    signale.note('Incorrect')
-    sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
-    removeOngoingSMS(proxyNumber, callerNumber)
   } else {
-    let r = await Promise.all([isWhitelisted(proxyNumber, callerNumber), isSpam(content)])
-    if (
-      !r[0] && r[1]
-    ) {
-      signale.note('Detected message as spam.')
-      const cap = await captcha.getCaptcha()
-      console.log(cap)
-      sendSMS(
-        proxyNumber,
-        callerNumber,
-        `This message was detected as spam. 🤨 Please answer the following question: ${
-          cap.q
-        }`
-      )
-      addOngoingSMS(proxyNumber, callerNumber, cap, reply)
+    const sendingUser = await sendingUserPromise
+    const sender = sendingUser ? sendingUser.proxyNumber : proxyNumber
+    const reply = `${sendingUser ? '' : callerNumber + ': '}${content}`
+    signale.note(reply)
+
+    if (await ongoingSMSPromise) {
+      signale.note('Is an ongoing SMS')
+      removeOngoingSMS(proxyNumber, callerNumber)
+      addToWhitelist(proxyNumber, callerNumber)
+      let ongoingSMS = await ongoingSMSPromise
+      const userNumber = ongoingSMS.number
+      sendSMS(sender, userNumber, ongoingSMS.message)
+      sendSMS(proxyNumber, callerNumber, 'Your number has been whitelisted. 👌')
+    } else if (await ongoingSMSPromise === false) {
+      signale.note('Incorrect')
+      sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
+      removeOngoingSMS(proxyNumber, callerNumber)
     } else {
-      signale.note('Message detected as not spam.')
-      userPromise.then(user => {
+      let r = await Promise.all([isWhitelistedPromise, await isSpamPromise])
+      if (
+        !r[0] && r[1]
+      ) {
+        signale.note('Detected message as spam.')
+        const cap = await capPromise
+        console.log(cap)
+        sendSMS(
+          proxyNumber,
+          callerNumber,
+          `This message was detected as spam. 🤨 Please answer the following question: ${
+            cap.q
+          }`
+        )
+        addOngoingSMS(proxyNumber, callerNumber, cap, reply)
+      } else {
+        signale.note('Message detected as not spam.')
+        let user = await userPromise
         sendSMS(sender, user.number, reply)
-      })
+      }
     }
   }
 })
