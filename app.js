@@ -5,8 +5,6 @@ require('dotenv').config()
 
 const accountSid = process.env.ACCOUNT_SID
 const authToken = process.env.AUTH_TOKEN
-console.log(accountSid)
-console.log(authToken)
 const client = require('twilio')(accountSid, authToken)
 const signale = require('signale')
 const VoiceResponse = require('twilio').twiml.VoiceResponse
@@ -19,7 +17,6 @@ const twilio = require('twilio')
 const urlencoded = require('body-parser').urlencoded
 const app = express()
 const session = require('express-session')
-const port = 6969
 const captcha = require('./cap.js')
 // Parse incoming POST params with Express middleware
 app.use(urlencoded({ extended: false }))
@@ -48,24 +45,43 @@ app.post('/call/incoming', (req, res) => {
   // with the phone number (if Twilio can discover it)
 
   const twiml = new VoiceResponse()
+  // twiml.say('This call is being recorded for quality control measures')
+
   const caller = req.body.Caller
   signale.info(`Incoming call from ${caller}`)
-  let randNum = '1234'
+  let randNum = getCode()
+
   const gather = twiml.gather({
     numDigits: 4,
     action: `/call/authcode/${randNum}`
   })
+
   gather.say(
-    `Welcome to mobile captcha. Please enter the following code: ${randNum}`
+    `This caller is being guarded by Tele-Guard. Please enter the following code: ${randNum}`
   )
+
+  // twiml.hangup()
   // If the user doesn't enter input, loop
-  twiml.redirect('/call/incoming')
+  // twiml.redirect('/call/incoming')
 
   // Render the response as XML in reply to the webhook request
   res.type('text/xml')
   res.send(twiml.toString())
 })
 
+app.post('/transcription', (req, res) => {
+  const text = req.body.TranscriptionText
+  const from = req.body.From
+  const recording = req.body.RecordingUrl
+  const to = req.body.To
+
+  console.log({ from, to, text, recording })
+  const twiml = new VoiceResponse()
+  twiml.say('Thanks for your message.')
+  twiml.hangup()
+  res.type('text/xml')
+  res.send(twiml.toString())
+})
 app.post('/call/authcode/:correctCode', (req, res) => {
   // Use the Twilio Node.js SDK to build an XML response
   const twiml = new VoiceResponse()
@@ -80,14 +96,29 @@ app.post('/call/authcode/:correctCode', (req, res) => {
       twiml.dial('5106405189')
     } else {
       signale.warn('Auth code incorrect - asking again')
-      twiml.say(`Sorry, the code ${req.body.Digits} is wrong :(`)
-      twiml.redirect('/call/incoming')
+      twiml.say(`The code ${req.body.Digits} is wrong.`)
+      twiml.say('You have been blocked. If you would like to leave a message, please do so after the beep, and press star.')
+      twiml.record({
+        action: '/recordings',
+        transcribe: true,
+        transcribeCallback: '/transcriptions',
+        finishOnKey: '*'
+      })
+      twiml.hangup()
     }
   } else {
-    twiml.redirect('/call/incoming')
+    twiml.hangup()
   }
 
   // Render the response as XML in reply to the webhook request
+  res.type('text/xml')
+  res.send(twiml.toString())
+  console.log(twiml.toString())
+})
+
+app.post('/recordings', (req, res) => {
+  const twiml = new VoiceResponse()
+  twiml.say('Thanks for your message')
   res.type('text/xml')
   res.send(twiml.toString())
 })
