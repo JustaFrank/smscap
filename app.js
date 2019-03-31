@@ -90,11 +90,11 @@ app.post('/transcription', (req, res) => {
   res.type('text/xml')
   res.send(twiml.toString())
 })
-app.post('/call/authcode/:correctCode', (req, res) => {
+app.post('/call/authcode/:correctCode', async (req, res) => {
   // Use the Twilio Node.js SDK to build an XML response
   const twiml = new VoiceResponse()
   const proxyNum = req.body.To
-  const targetUser = getUserByProxyNumber(proxyNum)
+  const targetUser = await getUserByProxyNumber(proxyNum)
   console.log(targetUser)
   // If the user entered digits, process their request
   signale.info(`Recieved auth code: ${req.body.Digits}`)
