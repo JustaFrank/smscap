@@ -176,9 +176,9 @@ app.post('/sms/incoming', async (req, res) => {
     sendSMS(proxyNumber, callerNumber, 'Incorrect! Resend your message. ❌')
     removeOngoingSMS(proxyNumber, callerNumber)
   } else {
+    let r = await Promise.all(isWhitelisted(proxyNumber, callerNumber), isSpam(content))
     if (
-      !(await isWhitelisted(proxyNumber, callerNumber)) &&
-      (await isSpam(content))
+      !r[0] && r[1]
     ) {
       signale.note('Detected message as spam.')
       const cap = await captcha.getCaptcha()
